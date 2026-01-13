@@ -12,6 +12,7 @@ import {
   UploadedFile,
   Res,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -45,7 +46,7 @@ export class LaporanController {
     private readonly validateLaporanUseCase: ValidateLaporanUseCase,
     private readonly getLaporanListUseCase: GetLaporanListUseCase,
     private readonly fileStorageService: FileStorageService,
-    private readonly laporanRepository: ILaporanRepository,
+    @Inject('ILaporanRepository') private readonly laporanRepository: ILaporanRepository,
   ) {}
 
   @Post()
