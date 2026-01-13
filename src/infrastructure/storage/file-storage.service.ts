@@ -48,6 +48,12 @@ export class FileStorageService {
     return path.join(this.uploadDir, filename);
   }
 
+  getFileUrl(filename: string | undefined): string | undefined {
+    if (!filename) return undefined;
+    const baseUrl = this.configService.get<string>('app.baseUrl') || 'http://localhost:3000';
+    return `${baseUrl}/uploads/${filename}`;
+  }
+
   async fileExists(filename: string): Promise<boolean> {
     try {
       await fs.access(path.join(this.uploadDir, filename));

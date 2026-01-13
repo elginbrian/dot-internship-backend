@@ -73,6 +73,7 @@ jobs:
             NODE_ENV=${{ secrets.NODE_ENV }}
             PORT=3000
             APP_PORT=${APP_PORT}
+            BASE_URL=https://dot-intern.elginbrian.com
             DB_NAME=laporan_db
             DB_USER=laporan_user
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}

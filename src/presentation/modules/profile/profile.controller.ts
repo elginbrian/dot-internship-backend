@@ -301,7 +301,8 @@ export class ProfileController {
             instansi: 'PT. ABC Company',
             deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk',
             total: 150,
-            fotoFilename: 'laporan_20240113_123456.jpg',
+            fotoUrl:
+              'https://dot-intern.elginbrian.com/uploads/2026/01/8149d2f3-ca9d-4354-98a2-c26e5d05969d.png',
             status: 'approved',
             remark: 'Laporan lengkap dan valid',
             createdAt: '2024-01-13T07:00:00.000Z',

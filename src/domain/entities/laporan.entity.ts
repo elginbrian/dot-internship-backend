@@ -28,6 +28,7 @@ export interface Laporan {
   deskripsi: string;
   total: number;
   fotoFilename?: string;
+  fotoUrl?: string;
   latitude?: number;
   longitude?: number;
   timestampFoto?: Date;

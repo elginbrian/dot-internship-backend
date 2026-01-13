@@ -14,6 +14,7 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import {
@@ -55,9 +56,19 @@ export class LaporanController {
     private readonly validateLaporanUseCase: ValidateLaporanUseCase,
     private readonly getLaporanListUseCase: GetLaporanListUseCase,
     private readonly fileStorageService: FileStorageService,
+    private readonly configService: ConfigService,
     @Inject('ILaporanRepository') private readonly laporanRepository: ILaporanRepository,
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
   ) {}
+
+  private transformLaporanWithUrl(laporan: any): any {
+    const baseUrl = this.configService.get<string>('app.baseUrl') || 'http://localhost:3000';
+    const { fotoFilename, ...laporanWithoutFilename } = laporan;
+    return {
+      ...laporanWithoutFilename,
+      fotoUrl: fotoFilename ? `${baseUrl}/uploads/${fotoFilename}` : null,
+    };
+  }
 
   @Post()
   @ApiOperation({
@@ -109,7 +120,8 @@ export class LaporanController {
         instansi: 'PT. ABC Company',
         deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
         total: 150,
-        fotoFilename: 'laporan_20240113_123456.jpg',
+        fotoUrl:
+          'https://dot-intern.elginbrian.com/uploads/2026/01/8149d2f3-ca9d-4354-98a2-c26e5d05969d.png',
         latitude: -6.2088,
         longitude: 106.8456,
         timestampFoto: '2024-01-13T12:34:56.000Z',
@@ -190,7 +202,8 @@ export class LaporanController {
             instansi: 'PT. ABC Company',
             deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk',
             total: 150,
-            fotoFilename: 'laporan_20240113_123456.jpg',
+            fotoUrl:
+              'https://dot-intern.elginbrian.com/uploads/2026/01/8149d2f3-ca9d-4354-98a2-c26e5d05969d.png',
             status: 'pending',
             createdAt: '2024-01-13T07:00:00.000Z',
             updatedAt: '2024-01-13T07:00:00.000Z',
@@ -256,7 +269,8 @@ export class LaporanController {
         instansi: 'PT. ABC Company',
         deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
         total: 150,
-        fotoFilename: 'laporan_20240113_123456.jpg',
+        fotoUrl:
+          'https://dot-intern.elginbrian.com/uploads/2026/01/8149d2f3-ca9d-4354-98a2-c26e5d05969d.png',
         latitude: -6.2088,
         longitude: 106.8456,
         timestampFoto: '2024-01-13T07:00:00.000Z',
@@ -305,7 +319,7 @@ export class LaporanController {
     if (!laporan) {
       throw new Error('Laporan not found');
     }
-    return laporan;
+    return this.transformLaporanWithUrl(laporan);
   }
 
   @Patch(':id')

@@ -107,8 +107,12 @@ export class LaporanResponseDto {
   @ApiProperty({ example: 150 })
   total: number;
 
-  @ApiPropertyOptional({ example: 'laporan_20240113_123456.jpg' })
-  fotoFilename?: string;
+  @ApiPropertyOptional({
+    example:
+      'https://dot-intern.elginbrian.com/uploads/2026/01/8149d2f3-ca9d-4354-98a2-c26e5d05969d.png',
+    description: 'Full URL to the uploaded photo',
+  })
+  fotoUrl?: string;
 
   @ApiPropertyOptional({ example: -6.2088 })
   latitude?: number;
