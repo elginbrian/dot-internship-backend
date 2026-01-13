@@ -18,11 +18,10 @@ RUN apk add --no-cache netcat-openbsd
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm ci --omit=dev
 
 COPY --from=development /app/dist ./dist
-COPY --from=development /app/src ./src
-COPY --from=development /app/node_modules/.bin ./node_modules/.bin
+COPY scripts ./scripts
 COPY docker-entrypoint.sh ./
 
 RUN mkdir -p uploads && chmod +x docker-entrypoint.sh
