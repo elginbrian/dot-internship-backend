@@ -2,10 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { DataSource } from 'typeorm';
+import { HttpExceptionFilter } from '../src/presentation/filters/http-exception.filter';
 
 describe('Authentication E2E Tests', () => {
   let app: INestApplication;
   let accessToken: string;
+  let dataSource: DataSource;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -24,12 +27,28 @@ describe('Authentication E2E Tests', () => {
       }),
     );
 
+    app.useGlobalFilters(new HttpExceptionFilter());
+
     await app.init();
-  });
+
+    dataSource = moduleFixture.get<DataSource>(DataSource);
+
+    if (dataSource && dataSource.isInitialized) {
+      await dataSource.query('TRUNCATE TABLE laporan CASCADE');
+      await dataSource.query('TRUNCATE TABLE users CASCADE');
+    }
+  }, 30000);
 
   afterAll(async () => {
-    await app.close();
-  });
+    if (dataSource && dataSource.isInitialized) {
+      await dataSource.query('TRUNCATE TABLE laporan CASCADE');
+      await dataSource.query('TRUNCATE TABLE users CASCADE');
+    }
+
+    if (app) {
+      await app.close();
+    }
+  }, 30000);
 
   describe('POST /api/v1/auth/register', () => {
     it('should register a new user successfully', async () => {
@@ -38,9 +57,9 @@ describe('Authentication E2E Tests', () => {
         password: 'SecurePass123!',
         username: 'Test User',
         nip: '12345678',
-        divisi: 'IT Department',
+        divisi: 'Unsecured Loan',
         noHp: '081234567890',
-        cabang: 'JAKARTA_PUSAT',
+        cabang: 'Malang Kawi',
       };
 
       const response = await request(app.getHttpServer())
@@ -61,9 +80,9 @@ describe('Authentication E2E Tests', () => {
         password: 'SecurePass123!',
         username: 'Test User 2',
         nip: '87654321',
-        divisi: 'HR Department',
+        divisi: 'Unsecured Loan',
         noHp: '081234567891',
-        cabang: 'JAKARTA_BARAT',
+        cabang: 'Madiun',
       };
 
       await request(app.getHttpServer())
@@ -78,9 +97,9 @@ describe('Authentication E2E Tests', () => {
         password: 'SecurePass123!',
         username: 'Test User 3',
         nip: '11111111',
-        divisi: 'IT Department',
+        divisi: 'Unsecured Loan',
         noHp: '081234567892',
-        cabang: 'JAKARTA_PUSAT',
+        cabang: 'Kediri',
       };
 
       await request(app.getHttpServer())
@@ -137,9 +156,8 @@ describe('Authentication E2E Tests', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('email');
-      expect(response.body.data.email).toBe('test@bri.co.id');
+      expect(response.body).toHaveProperty('email');
+      expect(response.body.email).toBe('test@bri.co.id');
     });
 
     it('should reject access without JWT token', async () => {
