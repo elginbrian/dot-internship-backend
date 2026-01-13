@@ -9,6 +9,7 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
@@ -25,5 +26,6 @@
       "@infrastructure/*": ["src/infrastructure/*"],
       "@presentation/*": ["src/presentation/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "dist", "test"]
 }

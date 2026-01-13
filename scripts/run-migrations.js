@@ -22,6 +22,25 @@ const migrationsPath = isProduction
 
 console.log('Entities path:', entitiesPath);
 console.log('Migrations path:', migrationsPath);
+console.log('');
+
+if (isProduction) {
+  const distPath = path.join(rootDir, 'dist');
+  console.log('Checking dist structure:');
+  try {
+    const distContents = fs.readdirSync(distPath);
+    console.log('  dist/ contains:', distContents.slice(0, 5).join(', '));
+
+    const infraPath = path.join(distPath, 'infrastructure', 'database');
+    if (fs.existsSync(infraPath)) {
+      const dbContents = fs.readdirSync(infraPath);
+      console.log('  dist/infrastructure/database/ contains:', dbContents.join(', '));
+    }
+  } catch (err) {
+    console.log('  Unable to check dist structure:', err.message);
+  }
+  console.log('');
+}
 
 const dataSourceOptions = {
   type: 'postgres',
