@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { HealthCheck, HealthCheckService, TypeOrmHealthIndicator } from '@nestjs/terminus';
 
 @ApiTags('Health')
@@ -11,7 +11,21 @@ export class HealthController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Basic health check' })
+  @ApiOperation({
+    summary: 'Basic health check',
+    description:
+      'Check if the API service is up and running. Returns current status and timestamp.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Service is healthy',
+    schema: {
+      example: {
+        status: 'ok',
+        timestamp: '2024-01-13T10:30:00.000Z',
+      },
+    },
+  })
   healthCheck() {
     return {
       status: 'ok',
@@ -21,7 +35,53 @@ export class HealthController {
 
   @Get('db')
   @HealthCheck()
-  @ApiOperation({ summary: 'Database health check' })
+  @ApiOperation({
+    summary: 'Database health check',
+    description:
+      'Check database connectivity and health status. Returns detailed health information including database ping status.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Database is healthy',
+    schema: {
+      example: {
+        status: 'ok',
+        info: {
+          database: {
+            status: 'up',
+          },
+        },
+        error: {},
+        details: {
+          database: {
+            status: 'up',
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 503,
+    description: 'Database is unhealthy',
+    schema: {
+      example: {
+        status: 'error',
+        info: {},
+        error: {
+          database: {
+            status: 'down',
+            message: 'Connection failed',
+          },
+        },
+        details: {
+          database: {
+            status: 'down',
+            message: 'Connection failed',
+          },
+        },
+      },
+    },
+  })
   checkDatabase() {
     return this.health.check([() => this.db.pingCheck('database')]);
   }
