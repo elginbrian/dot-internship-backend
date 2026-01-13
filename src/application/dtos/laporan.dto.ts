@@ -1,0 +1,165 @@
+import { IsString, IsNotEmpty, IsNumber, IsEnum, IsOptional, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+
+export class CreateLaporanDto {
+  @ApiProperty({ enum: ['Kunjungan Nasabah', 'Share Broadcast'] })
+  @IsEnum(['Kunjungan Nasabah', 'Share Broadcast'])
+  @IsNotEmpty()
+  jenisLaporan: string;
+
+  @ApiProperty({ enum: ['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'] })
+  @IsEnum(['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'])
+  @IsNotEmpty()
+  kategori: string;
+
+  @ApiProperty({ example: 'PT. ABC Company' })
+  @IsString()
+  @IsNotEmpty()
+  instansi: string;
+
+  @ApiProperty({ example: 'Kunjungan ke instansi untuk sosialisasi produk BRI' })
+  @IsString()
+  @IsNotEmpty()
+  deskripsi: string;
+
+  @ApiProperty({ example: 150 })
+  @IsNumber()
+  @IsNotEmpty()
+  @Type(() => Number)
+  @Min(0)
+  total: number;
+
+  @ApiPropertyOptional({ example: -6.2088 })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  latitude?: number;
+
+  @ApiPropertyOptional({ example: 106.8456 })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  longitude?: number;
+}
+
+export class UpdateLaporanDto {
+  @ApiPropertyOptional({ enum: ['Kunjungan Nasabah', 'Share Broadcast'] })
+  @IsOptional()
+  @IsEnum(['Kunjungan Nasabah', 'Share Broadcast'])
+  jenisLaporan?: string;
+
+  @ApiPropertyOptional({
+    enum: ['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'],
+  })
+  @IsOptional()
+  @IsEnum(['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'])
+  kategori?: string;
+
+  @ApiPropertyOptional({ example: 'PT. ABC Company' })
+  @IsOptional()
+  @IsString()
+  instansi?: string;
+
+  @ApiPropertyOptional({ example: 'Updated description' })
+  @IsOptional()
+  @IsString()
+  deskripsi?: string;
+
+  @ApiPropertyOptional({ example: 200 })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  total?: number;
+}
+
+export class ValidateLaporanDto {
+  @ApiProperty({ enum: ['approved', 'rejected'] })
+  @IsEnum(['approved', 'rejected'])
+  @IsNotEmpty()
+  status: string;
+
+  @ApiPropertyOptional({ example: 'Laporan disetujui' })
+  @IsOptional()
+  @IsString()
+  remark?: string;
+}
+
+export class LaporanResponseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  userId: string;
+
+  @ApiProperty()
+  jenisLaporan: string;
+
+  @ApiProperty()
+  kategori: string;
+
+  @ApiProperty()
+  instansi: string;
+
+  @ApiProperty()
+  deskripsi: string;
+
+  @ApiProperty()
+  total: number;
+
+  @ApiPropertyOptional()
+  fotoFilename?: string;
+
+  @ApiPropertyOptional()
+  latitude?: number;
+
+  @ApiPropertyOptional()
+  longitude?: number;
+
+  @ApiPropertyOptional()
+  timestampFoto?: Date;
+
+  @ApiProperty()
+  status: string;
+
+  @ApiPropertyOptional()
+  remark?: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+}
+
+export class LaporanFilterDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @ApiPropertyOptional({ enum: ['pending', 'approved', 'rejected'] })
+  @IsOptional()
+  @IsEnum(['pending', 'approved', 'rejected'])
+  status?: string;
+
+  @ApiPropertyOptional({ enum: ['kunjungan', 'kegiatan'] })
+  @IsOptional()
+  @IsEnum(['kunjungan', 'kegiatan'])
+  jenisLaporan?: string;
+
+  @ApiPropertyOptional({ enum: ['prapurna', 'purna', 'bri_unit', 'kantor_cabang', 'teras_bri'] })
+  @IsOptional()
+  @IsEnum(['prapurna', 'purna', 'bri_unit', 'kantor_cabang', 'teras_bri'])
+  kategori?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  page?: number = 1;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  limit?: number = 10;
+}

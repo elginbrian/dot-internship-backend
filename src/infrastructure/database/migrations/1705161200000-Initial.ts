@@ -1,0 +1,69 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class Initial1705161200000 implements MigrationInterface {
+  name = 'Initial1705161200000';
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      CREATE TABLE "users" (
+        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "email" character varying NOT NULL,
+        "username" character varying NOT NULL,
+        "password_hash" character varying NOT NULL,
+        "role" character varying NOT NULL DEFAULT 'USER',
+        "nip" character varying NOT NULL,
+        "divisi" character varying NOT NULL,
+        "no_hp" character varying NOT NULL,
+        "cabang" character varying NOT NULL,
+        "is_active" boolean NOT NULL DEFAULT true,
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+        CONSTRAINT "UQ_users_email" UNIQUE ("email"),
+        CONSTRAINT "UQ_users_nip" UNIQUE ("nip"),
+        CONSTRAINT "PK_users_id" PRIMARY KEY ("id")
+      )
+    `);
+
+    await queryRunner.query(`
+      CREATE TABLE "laporan" (
+        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "user_id" uuid NOT NULL,
+        "jenis_laporan" character varying NOT NULL,
+        "kategori" character varying NOT NULL,
+        "instansi" character varying NOT NULL,
+        "deskripsi" text NOT NULL,
+        "total" integer NOT NULL,
+        "foto_filename" character varying,
+        "latitude" numeric(10,7),
+        "longitude" numeric(10,7),
+        "timestamp_foto" TIMESTAMP,
+        "status" character varying NOT NULL DEFAULT 'pending',
+        "remark" text,
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+        CONSTRAINT "PK_laporan_id" PRIMARY KEY ("id"),
+        CONSTRAINT "FK_laporan_user" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE
+      )
+    `);
+
+    await queryRunner.query(`
+      CREATE INDEX "IDX_laporan_user_id" ON "laporan" ("user_id")
+    `);
+
+    await queryRunner.query(`
+      CREATE INDEX "IDX_laporan_status" ON "laporan" ("status")
+    `);
+
+    await queryRunner.query(`
+      CREATE INDEX "IDX_laporan_created_at" ON "laporan" ("created_at")
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP INDEX "IDX_laporan_created_at"`);
+    await queryRunner.query(`DROP INDEX "IDX_laporan_status"`);
+    await queryRunner.query(`DROP INDEX "IDX_laporan_user_id"`);
+    await queryRunner.query(`DROP TABLE "laporan"`);
+    await queryRunner.query(`DROP TABLE "users"`);
+  }
+}
