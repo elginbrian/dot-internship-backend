@@ -65,7 +65,7 @@ export class Initial1705161200000 implements MigrationInterface {
       ) VALUES (
         'admin@gmail.com', 
         'Administrator Bank', 
-        '$2b$10$CVMGKHvNPYNppVU8qpXmDeeG/Wt5poLv.PllfLTdpVyZaEGMXRHpG', 
+        '$2b$12$Q7sxTCiwrO6KUCB2aRRInOl8alCkk/e0sqbYokEpKN2h.gOvaveF2', 
         'ADMIN', 
         'DEV00001', 
         'Unsecured Loan', 
@@ -82,7 +82,7 @@ export class Initial1705161200000 implements MigrationInterface {
       ) VALUES (
         'supervisor@gmail.com', 
         'Supervisor Bank', 
-        '$2b$10$ottPgM4RIikriSK7CfR4YuUa//qrzCHmszAzbnY3Osoo3tbxo0HJe', 
+        '$2b$12$im.3fZkkEkBYlyCGKIbzzOK8mD8/C9aFxWj.Ic4d1BMWCIdzw6JUW', 
         'SUPERVISOR', 
         'DEV00002', 
         'Unsecured Loan', 
