@@ -92,7 +92,6 @@ export class ProfileController {
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string', format: 'email', example: 'newemail@example.com' },
         username: { type: 'string', example: 'new_username' },
         nip: { type: 'string', example: '987654321' },
         divisi: {
@@ -143,7 +142,7 @@ export class ProfileController {
     schema: {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440001',
-        email: 'newemail@example.com',
+        email: 'user@example.com',
         username: 'new_username',
         role: 'USER',
         nip: '987654321',

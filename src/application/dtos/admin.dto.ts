@@ -1,13 +1,8 @@
-import { IsEmail, IsString, IsOptional, IsEnum, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsBoolean } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { UserRole, Cabang, Divisi } from '@domain/entities/user.entity';
 
 export class UpdateUserDto {
-  @ApiPropertyOptional({ example: 'user@gmail.com' })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
   @ApiPropertyOptional({ example: 'john_doe' })
   @IsOptional()
   @IsString()

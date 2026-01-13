@@ -83,7 +83,6 @@ export class AdminController {
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string', example: 'newemail@example.com' },
         username: { type: 'string', example: 'new_username' },
         role: {
           type: 'string',
@@ -142,7 +141,7 @@ export class AdminController {
     schema: {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440001',
-        email: 'newemail@example.com',
+        email: 'user@example.com',
         username: 'new_username',
         role: 'ADMIN',
         nip: '987654321',
