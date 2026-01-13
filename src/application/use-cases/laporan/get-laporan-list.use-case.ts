@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { ILaporanRepository, LaporanFilters } from '@domain/repositories/laporan.repository.interface';
+import { Injectable, Inject } from '@nestjs/common';
+import {
+  ILaporanRepository,
+  LaporanFilters,
+} from '@domain/repositories/laporan.repository.interface';
 import { Laporan } from '@domain/entities/laporan.entity';
 
 @Injectable()
 export class GetLaporanListUseCase {
-  constructor(private readonly laporanRepository: ILaporanRepository) {}
+  constructor(
+    @Inject('ILaporanRepository') private readonly laporanRepository: ILaporanRepository,
+  ) {}
 
   async execute(
     filters: LaporanFilters,

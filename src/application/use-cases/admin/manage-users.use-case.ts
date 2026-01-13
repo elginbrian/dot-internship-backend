@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IUserRepository } from '@domain/repositories/user.repository.interface';
 import { User } from '@domain/entities/user.entity';
 
 @Injectable()
 export class ManageUsersUseCase {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
 
   async getAll(page: number = 1, limit: number = 10): Promise<{ users: User[]; total: number }> {
     return await this.userRepository.findAll(page, limit);

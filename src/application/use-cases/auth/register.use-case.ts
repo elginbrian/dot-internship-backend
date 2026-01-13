@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IUserRepository } from '@domain/repositories/user.repository.interface';
 import { User, UserRole } from '@domain/entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -9,9 +9,13 @@ import {
 
 @Injectable()
 export class RegisterUseCase {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
 
-  async execute(data: Omit<User, 'id' | 'passwordHash' | 'isActive' | 'createdAt' | 'updatedAt'> & { password: string }): Promise<User> {
+  async execute(
+    data: Omit<User, 'id' | 'passwordHash' | 'isActive' | 'createdAt' | 'updatedAt'> & {
+      password: string;
+    },
+  ): Promise<User> {
     const existingEmail = await this.userRepository.findByEmail(data.email);
     if (existingEmail) {
       throw new UserAlreadyExistsException(data.email);
