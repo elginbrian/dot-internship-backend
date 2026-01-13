@@ -38,9 +38,10 @@ import {
   ValidateLaporanDto,
   LaporanFilterDto,
 } from '@application/dtos/laporan.dto';
+import { JenisLaporan, KategoriKunjungan, LaporanStatus } from '@domain/entities/laporan.entity';
 import { FileStorageService } from '@infrastructure/storage/file-storage.service';
 import { ILaporanRepository } from '@domain/repositories/laporan.repository.interface';
-import * as fs from 'fs';
+import { CurrentUserPayload } from '../auth/guards/jwt.types';
 
 @ApiTags('Laporan')
 @ApiBearerAuth()
@@ -71,16 +72,20 @@ export class LaporanController {
           type: 'string',
           enum: ['Kunjungan Nasabah', 'Share Broadcast'],
           example: 'Kunjungan Nasabah',
+          description:
+            'Type of report: Kunjungan Nasabah (customer visit) or Share Broadcast (broadcast sharing)',
         },
         kategori: {
           type: 'string',
           enum: ['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'],
           example: 'TNI',
+          description:
+            'Category: TNI (military), ASN (civil servant), POLRI (police), BUMN (state-owned enterprise), Pensiunan (retiree), Prapurna (pre-retirement), Lainnya (other)',
         },
         instansi: { type: 'string', example: 'PT. ABC Company' },
         deskripsi: {
           type: 'string',
-          example: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
+          example: 'Kunjungan ke instansi untuk sosialisasi produk',
         },
         total: { type: 'number', example: 150 },
         latitude: { type: 'number', example: -6.2088 },
@@ -149,8 +154,8 @@ export class LaporanController {
 
     const laporan = await this.createLaporanUseCase.execute({
       userId,
-      jenisLaporan: dto.jenisLaporan as any,
-      kategori: dto.kategori as any,
+      jenisLaporan: dto.jenisLaporan as JenisLaporan,
+      kategori: dto.kategori as KategoriKunjungan,
       instansi: dto.instansi,
       deskripsi: dto.deskripsi,
       total: dto.total,
@@ -181,7 +186,7 @@ export class LaporanController {
             jenisLaporan: 'Kunjungan Nasabah',
             kategori: 'TNI',
             instansi: 'PT. ABC Company',
-            deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
+            deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk',
             total: 150,
             fotoFilename: 'laporan_20240113_123456.jpg',
             status: 'pending',
@@ -206,7 +211,7 @@ export class LaporanController {
       },
     },
   })
-  async getAll(@Query() filters: LaporanFilterDto, @CurrentUser() user: any) {
+  async getAll(@Query() filters: LaporanFilterDto, @CurrentUser() user: CurrentUserPayload) {
     if (user.role === 'SUPERVISOR') {
       // Supervisor can see all
     } else if (user.role === 'ADMIN') {
@@ -221,7 +226,7 @@ export class LaporanController {
     return await this.getLaporanListUseCase.execute(
       {
         ...filters,
-        status: filters.status as any,
+        status: filters.status as LaporanStatus | undefined,
       },
       filters.page || 1,
       filters.limit || 10,
@@ -313,11 +318,15 @@ export class LaporanController {
           type: 'string',
           enum: ['Kunjungan Nasabah', 'Kunjungan Non Nasabah'],
           example: 'Kunjungan Nasabah',
+          description:
+            'Type of report: Kunjungan Nasabah (customer visit) or Kunjungan Non Nasabah (non-customer visit)',
         },
         kategori: {
           type: 'string',
           enum: ['TNI', 'POLRI', 'PNS', 'ASN', 'Pensiunan', 'Swasta', 'Prapurna'],
           example: 'PNS',
+          description:
+            'Category: TNI (military), POLRI (police), PNS (civil servant), ASN (state apparatus), Pensiunan (retiree), Swasta (private), Prapurna (pre-retirement)',
         },
         instansi: { type: 'string', example: 'Dinas Pendidikan Kota Jakarta' },
         deskripsi: { type: 'string', example: 'Follow up kunjungan sebelumnya' },
@@ -388,7 +397,11 @@ export class LaporanController {
       },
     },
   })
-  async update(@Param('id') id: string, @Body() dto: UpdateLaporanDto, @CurrentUser() user: any) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateLaporanDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan) {
       throw new Error('Laporan not found');
@@ -398,7 +411,13 @@ export class LaporanController {
       throw new Error('Unauthorized');
     }
 
-    return await this.updateLaporanUseCase.execute(id, dto as any);
+    const updateData = {
+      ...dto,
+      jenisLaporan: dto.jenisLaporan ? (dto.jenisLaporan as JenisLaporan) : undefined,
+      kategori: dto.kategori ? (dto.kategori as KategoriKunjungan) : undefined,
+    };
+
+    return await this.updateLaporanUseCase.execute(id, updateData);
   }
 
   @Delete(':id')
@@ -450,7 +469,7 @@ export class LaporanController {
       },
     },
   })
-  async delete(@Param('id') id: string, @CurrentUser() user: any) {
+  async delete(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan) {
       throw new Error('Laporan not found');
@@ -481,8 +500,18 @@ export class LaporanController {
       type: 'object',
       required: ['status'],
       properties: {
-        status: { type: 'string', enum: ['approved', 'rejected'], example: 'approved' },
-        remark: { type: 'string', example: 'Data valid dan lengkap, disetujui' },
+        status: {
+          type: 'string',
+          enum: ['approved', 'rejected'],
+          example: 'approved',
+          description:
+            'Validation status: approved (laporan is valid and accepted) or rejected (laporan is invalid or declined)',
+        },
+        remark: {
+          type: 'string',
+          example: 'Data valid dan lengkap, disetujui',
+          description: 'Optional remark or feedback for the validation decision',
+        },
       },
     },
   })
@@ -543,7 +572,7 @@ export class LaporanController {
     },
   })
   async validate(@Param('id') id: string, @Body() dto: ValidateLaporanDto) {
-    return await this.validateLaporanUseCase.execute(id, dto.status as any, dto.remark);
+    return await this.validateLaporanUseCase.execute(id, dto.status as LaporanStatus, dto.remark);
   }
 
   @Get(':id/photo')

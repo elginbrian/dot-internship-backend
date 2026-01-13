@@ -23,7 +23,7 @@ export class RegisterDto {
   @IsNotEmpty()
   nip: string;
 
-  @ApiProperty({ example: 'IT Department' })
+  @ApiProperty({ example: 'Unsecured Loan', enum: ['Unsecured Loan'] })
   @IsString()
   @IsNotEmpty()
   divisi: string;

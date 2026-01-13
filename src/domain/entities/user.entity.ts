@@ -32,6 +32,10 @@ export enum Cabang {
   KCP_UNIVERSITAS_BRAWIJAYA = 'KCP Universitas Brawijaya',
 }
 
+export enum Divisi {
+  UNSECURED_LOAN = 'Unsecured Loan',
+}
+
 export interface User {
   id?: string;
   email: string;
@@ -39,7 +43,7 @@ export interface User {
   passwordHash: string;
   role: UserRole;
   nip: string;
-  divisi: string;
+  divisi: Divisi;
   noHp: string;
   cabang: Cabang;
   isActive: boolean;

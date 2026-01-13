@@ -1,9 +1,10 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUseCase } from '@application/use-cases/auth/register.use-case';
 import { LoginUseCase } from '@application/use-cases/auth/login.use-case';
 import { RegisterDto, LoginDto, AuthResponseDto } from '@application/dtos/auth.dto';
+import { UserRole, Cabang, Divisi } from '@domain/entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -20,7 +21,58 @@ export class AuthController {
     description:
       'Register a new user account with email, password, and profile information. New users are assigned USER role by default.',
   })
-  @ApiBody({ type: RegisterDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', format: 'email', example: 'user@gmail.com' },
+        password: { type: 'string', minLength: 8, example: 'SecurePass123!' },
+        username: { type: 'string', example: 'John Doe' },
+        nip: { type: 'string', example: '12345678' },
+        divisi: {
+          type: 'string',
+          enum: ['Unsecured Loan'],
+          example: 'Unsecured Loan',
+          description: 'Division: Unsecured Loan (only available division)',
+        },
+        noHp: { type: 'string', example: '081234567890' },
+        cabang: {
+          type: 'string',
+          example: 'Malang Kawi',
+          enum: [
+            'Malang Kawi',
+            'Madiun',
+            'Kediri',
+            'Malang Martadinata',
+            'Lumajang',
+            'Magetan',
+            'Nganjuk',
+            'Blitar',
+            'Banyuwangi',
+            'Bondowoso',
+            'Jember',
+            'Pasuruan',
+            'Probolinggo',
+            'Ngawi',
+            'Ponorogo',
+            'Tulungagung',
+            'Situbondo',
+            'Pacitan',
+            'Trenggalek',
+            'KCP Universitas Jember',
+            'Pare',
+            'Kepanjen',
+            'Batu',
+            'KCP Caruban',
+            'KCP Universitas Brawijaya',
+          ],
+          description: 'Branch location (cabang) - select from available branches',
+        },
+      },
+      required: ['email', 'password', 'username', 'nip', 'divisi', 'noHp', 'cabang'],
+    },
+  })
   @ApiResponse({
     status: 201,
     description: 'User registered successfully',
@@ -29,11 +81,11 @@ export class AuthController {
         message: 'User registered successfully',
         user: {
           id: '550e8400-e29b-41d4-a716-446655440000',
-          email: 'user@bri.co.id',
+          email: 'user@gmail.com',
           username: 'John Doe',
           role: 'USER',
           nip: '12345678',
-          divisi: 'IT Department',
+          divisi: 'Unsecured Loan',
           noHp: '081234567890',
           cabang: 'Malang Kawi',
           isActive: true,
@@ -57,9 +109,11 @@ export class AuthController {
   async register(@Body() dto: RegisterDto): Promise<any> {
     const user = await this.registerUseCase.execute({
       ...dto,
+      divisi: dto.divisi as Divisi,
+      cabang: dto.cabang as Cabang,
       password: dto.password,
-      role: 'USER',
-    } as any);
+      role: UserRole.USER,
+    });
 
     const { passwordHash, ...userWithoutPassword } = user;
 
@@ -89,11 +143,11 @@ export class AuthController {
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXJAYnJpLmNvLmlkIiwic3ViIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDAwIiwicm9sZSI6IlVTRVIifQ.xyz789',
         user: {
           id: '550e8400-e29b-41d4-a716-446655440000',
-          email: 'user@bri.co.id',
+          email: 'user@gmail.com',
           username: 'John Doe',
           role: 'USER',
           nip: '12345678',
-          divisi: 'IT Department',
+          divisi: 'Unsecured Loan',
           noHp: '081234567890',
           cabang: 'Malang Kawi',
           isActive: true,
@@ -126,7 +180,12 @@ export class AuthController {
     return {
       accessToken,
       refreshToken,
-      user: userWithoutPassword as any,
+      user: {
+        ...userWithoutPassword,
+        id: userWithoutPassword.id!,
+        createdAt: userWithoutPassword.createdAt!,
+        updatedAt: userWithoutPassword.updatedAt!,
+      },
     };
   }
 

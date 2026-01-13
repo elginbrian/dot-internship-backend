@@ -1,9 +1,17 @@
 import { Controller, Get, Patch, Body, UseGuards, Inject } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+  ApiBody,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import { IUserRepository } from '@domain/repositories/user.repository.interface';
 import { ILaporanRepository } from '@domain/repositories/laporan.repository.interface';
+import { UpdateProfileDto, ChangePasswordDto } from '@application/dtos/profile.dto';
 import * as bcrypt from 'bcrypt';
 
 @ApiTags('Profile')
@@ -32,7 +40,7 @@ export class ProfileController {
         username: 'john_doe',
         role: 'USER',
         nip: '123456789',
-        divisi: 'Account Officer Division',
+        divisi: 'Unsecured Loan',
         noHp: '081234567890',
         cabang: 'Malang Kawi',
         isActive: true,
@@ -78,17 +86,54 @@ export class ProfileController {
     description:
       'Update profile information of the currently authenticated user. Cannot update role or password through this endpoint.',
   })
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Profile update data',
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string', example: 'newemail@example.com' },
+        email: { type: 'string', format: 'email', example: 'newemail@example.com' },
         username: { type: 'string', example: 'new_username' },
         nip: { type: 'string', example: '987654321' },
-        divisi: { type: 'string', example: 'Senior Account Officer Division' },
+        divisi: {
+          type: 'string',
+          enum: ['Unsecured Loan'],
+          example: 'Unsecured Loan',
+          description: 'Division: Unsecured Loan (only available division)',
+        },
         noHp: { type: 'string', example: '081298765432' },
-        cabang: { type: 'string', example: 'Bandung' },
+        cabang: {
+          type: 'string',
+          example: 'Bandung',
+          enum: [
+            'Malang Kawi',
+            'Madiun',
+            'Kediri',
+            'Malang Martadinata',
+            'Lumajang',
+            'Magetan',
+            'Nganjuk',
+            'Blitar',
+            'Banyuwangi',
+            'Bondowoso',
+            'Jember',
+            'Pasuruan',
+            'Probolinggo',
+            'Ngawi',
+            'Ponorogo',
+            'Tulungagung',
+            'Situbondo',
+            'Pacitan',
+            'Trenggalek',
+            'KCP Universitas Jember',
+            'Pare',
+            'Kepanjen',
+            'Batu',
+            'KCP Caruban',
+            'KCP Universitas Brawijaya',
+          ],
+          description: 'Branch location (cabang) - select from available branches',
+        },
       },
     },
   })
@@ -102,7 +147,7 @@ export class ProfileController {
         username: 'new_username',
         role: 'USER',
         nip: '987654321',
-        divisi: 'Senior Account Officer Division',
+        divisi: 'Unsecured Loan',
         noHp: '081298765432',
         cabang: 'Bandung',
         isActive: true,
@@ -143,7 +188,7 @@ export class ProfileController {
       },
     },
   })
-  async updateProfile(@CurrentUser('id') userId: string, @Body() data: any) {
+  async updateProfile(@CurrentUser('id') userId: string, @Body() data: UpdateProfileDto) {
     const updated = await this.userRepository.update(userId, data);
     const { passwordHash, ...userWithoutPassword } = updated;
     return userWithoutPassword;
@@ -253,7 +298,7 @@ export class ProfileController {
             jenisLaporan: 'Kunjungan Nasabah',
             kategori: 'TNI',
             instansi: 'PT. ABC Company',
-            deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
+            deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk',
             total: 150,
             fotoFilename: 'laporan_20240113_123456.jpg',
             status: 'approved',

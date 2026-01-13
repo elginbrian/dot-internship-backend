@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IUserRepository } from '@domain/repositories/user.repository.interface';
-import { User } from '@domain/entities/user.entity';
+import { User, UserRole, Cabang, Divisi } from '@domain/entities/user.entity';
 import { UserOrmEntity } from '../entities/user.orm-entity';
 
 @Injectable()
@@ -65,11 +65,11 @@ export class UserRepository implements IUserRepository {
       email: entity.email,
       username: entity.username,
       passwordHash: entity.passwordHash,
-      role: entity.role as any,
+      role: entity.role as UserRole,
       nip: entity.nip,
-      divisi: entity.divisi,
+      divisi: entity.divisi as Divisi,
       noHp: entity.noHp,
-      cabang: entity.cabang as any,
+      cabang: entity.cabang as Cabang,
       isActive: entity.isActive,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
