@@ -23,12 +23,10 @@ import { HealthModule } from './presentation/modules/health/health.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get<string>('database.url'),
-        entities: [__dirname + '/infrastructure/database/entities/*.orm-entity{.ts,.js}'],
+        entities: [__dirname + '/**/*.orm-entity{.ts,.js}'],
         synchronize: false,
         logging: configService.get<string>('app.nodeEnv') === 'development',
-        ssl: configService.get<boolean>('database.ssl')
-          ? { rejectUnauthorized: false }
-          : false,
+        ssl: configService.get<boolean>('database.ssl') ? { rejectUnauthorized: false } : false,
       }),
       inject: [ConfigService],
     }),
