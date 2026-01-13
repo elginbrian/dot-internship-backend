@@ -84,7 +84,8 @@ jobs:
               -v $(pwd)/uploads:/app/uploads \
               ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
-            docker exec ${{ env.CONTAINER_NAME }} npm run migration:run || true
+            sleep 5
+            docker exec ${{ env.CONTAINER_NAME }} npm run migration:run:prod || true
             docker image prune -af --filter "until=24h"
             docker ps -a | grep ${{ env.CONTAINER_NAME }}
 

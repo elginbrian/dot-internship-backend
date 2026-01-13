@@ -16,7 +16,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --only=production
+RUN npm ci --only=production && npm install typeorm
 
 COPY --from=development /app/dist ./dist
 
