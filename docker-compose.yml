@@ -25,17 +25,17 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: brian-postgres
+    container_name: laporan-postgres
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=brian_db
-      - POSTGRES_USER=brian_user
-      - POSTGRES_PASSWORD=brian_pass
+      - POSTGRES_DB=laporan_db
+      - POSTGRES_USER=laporan_user
+      - POSTGRES_PASSWORD=laporan_pass
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U brian_user -d brian_db"]
+      test: ["CMD-SHELL", "pg_isready -U laporan_user -d laporan_db"]
       interval: 10s
       timeout: 5s
       retries: 5
