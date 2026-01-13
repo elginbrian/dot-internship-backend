@@ -57,40 +57,6 @@ export class Initial1705161200000 implements MigrationInterface {
     await queryRunner.query(`
       CREATE INDEX "IDX_laporan_created_at" ON "laporan" ("created_at")
     `);
-
-    // Password default: 'password123'
-    await queryRunner.query(`
-      INSERT INTO "users" (
-        "email", "username", "password_hash", "role", "nip", "divisi", "no_hp", "cabang", "is_active"
-      ) VALUES (
-        'admin@gmail.com', 
-        'Administrator Bank', 
-        '$2b$12$Q7sxTCiwrO6KUCB2aRRInOl8alCkk/e0sqbYokEpKN2h.gOvaveF2', 
-        'ADMIN', 
-        'DEV00001', 
-        'Unsecured Loan', 
-        '081234567890', 
-        'Malang Kawi', 
-        true
-      )
-    `);
-
-    // Password default: 'password123'
-    await queryRunner.query(`
-      INSERT INTO "users" (
-        "email", "username", "password_hash", "role", "nip", "divisi", "no_hp", "cabang", "is_active"
-      ) VALUES (
-        'supervisor@gmail.com', 
-        'Supervisor Bank', 
-        '$2b$12$im.3fZkkEkBYlyCGKIbzzOK8mD8/C9aFxWj.Ic4d1BMWCIdzw6JUW', 
-        'SUPERVISOR', 
-        'DEV00002', 
-        'Unsecured Loan', 
-        '081234567891', 
-        'Malang Kawi', 
-        true
-      )
-    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
