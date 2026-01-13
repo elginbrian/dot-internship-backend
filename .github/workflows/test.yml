@@ -8,6 +8,8 @@ on:
   push:
     branches:
       - develop
+      - main
+      - master
 
 jobs:
   test:
@@ -80,7 +82,7 @@ jobs:
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            echo "✅ All tests passed!"
+            echo "All tests passed!"
           else
-            echo "⚠️ Some tests failed, but continuing..."
+            echo "Some tests failed, but continuing..."
           fi
