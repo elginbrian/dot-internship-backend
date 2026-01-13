@@ -11,7 +11,11 @@ done
 echo "PostgreSQL is up!"
 
 echo "Running migrations..."
-npm run migration:run || echo "Migrations already applied or not available"
+if npm run migration:run; then
+  echo "Migrations completed successfully"
+else
+  echo "Migration failed or already applied, continuing..."
+fi
 
 echo "Starting NestJS application..."
 exec node dist/main
