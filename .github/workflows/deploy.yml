@@ -1,0 +1,104 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE_NAME: laporan-bank-api
+  CONTAINER_NAME: laporan-bank-api
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:buildcache,mode=max
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd ${{ secrets.VPS_APP_PATH }}
+            git pull origin main || git pull origin master
+
+            if [ ! -f .env ]; then
+              cat > .env << EOF
+            NODE_ENV=${{ secrets.NODE_ENV }}
+            PORT=${{ secrets.APP_PORT }}
+            API_PREFIX=/api/v1
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            DATABASE_SSL=false
+            DATABASE_POOL_SIZE=10
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_EXPIRATION=30m
+            JWT_REFRESH_EXPIRATION=7d
+            UPLOAD_DIR=./uploads
+            MAX_FILE_SIZE=10485760
+            ALLOWED_FILE_TYPES=image/jpeg,image/png,image/jpg
+            LOG_LEVEL=info
+            ENABLE_SWAGGER=${{ secrets.ENABLE_SWAGGER }}
+            CORS_ORIGINS=${{ secrets.CORS_ORIGINS }}
+            EOF
+            fi
+
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            docker stop ${{ env.CONTAINER_NAME }} || true
+            docker rm ${{ env.CONTAINER_NAME }} || true
+
+            docker run -d \
+              --name ${{ env.CONTAINER_NAME }} \
+              --restart unless-stopped \
+              -p ${{ secrets.APP_PORT }}:3000 \
+              --env-file .env \
+              -v $(pwd)/uploads:/app/uploads \
+              ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+
+            docker exec ${{ env.CONTAINER_NAME }} npm run migration:run || true
+            docker image prune -af --filter "until=24h"
+            docker ps -a | grep ${{ env.CONTAINER_NAME }}
+
+      - name: Health check
+        run: |
+          sleep 10
+          curl -f http://${{ secrets.VPS_HOST }}:${{ secrets.APP_PORT }}/api/v1/health || exit 1
+
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "Deployment successful"
+          else
+            echo "Deployment failed"
+            exit 1
+          fi

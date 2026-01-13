@@ -64,11 +64,13 @@ npm run start:dev
 ## 📚 API Endpoints
 
 ### Authentication (3 endpoints)
+
 - `POST /api/v1/auth/register` - Register user
 - `POST /api/v1/auth/login` - Login
 - `POST /api/v1/auth/refresh` - Refresh token
 
 ### Laporan (7 endpoints)
+
 - `POST /api/v1/laporan` - Create laporan
 - `GET /api/v1/laporan` - Get list
 - `GET /api/v1/laporan/:id` - Get detail
@@ -78,21 +80,25 @@ npm run start:dev
 - `GET /api/v1/laporan/:id/photo` - Get photo
 
 ### Dashboard (2 endpoints)
+
 - `GET /api/v1/dashboard/stats` - Statistics
 - `GET /api/v1/dashboard/leaderboard` - Leaderboard
 
 ### Admin (3 endpoints)
+
 - `GET /api/v1/admin/users` - Get users
 - `PATCH /api/v1/admin/users/:id` - Update user
 - `DELETE /api/v1/admin/users/:id` - Delete user
 
 ### Profile (4 endpoints)
+
 - `GET /api/v1/profile` - Get profile
 - `PATCH /api/v1/profile` - Update profile
 - `PATCH /api/v1/profile/password` - Change password
 - `GET /api/v1/profile/laporan` - Get user's laporan
 
 ### Health (2 endpoints)
+
 - `GET /api/v1/health` - Health check
 - `GET /api/v1/health/db` - Database check
 
@@ -104,7 +110,44 @@ npm run test:e2e
 npm run test:cov
 ```
 
-## 📦 Tech Stack
+## � Deployment
+
+### Docker Deployment (Recommended)
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete deployment guide.
+
+**Quick Deploy:**
+
+```bash
+# Make deploy script executable
+chmod +x deploy.sh
+
+# Run deployment
+./deploy.sh
+```
+
+### CI/CD with GitHub Actions
+
+The project includes automated deployment to VPS. Configure GitHub Secrets:
+
+**Required Secrets:**
+
+- `DOCKER_USERNAME` - Docker Hub username
+- `DOCKER_PASSWORD` - Docker Hub password/token
+- `VPS_HOST` - VPS IP address or domain
+- `VPS_USERNAME` - SSH username
+- `VPS_SSH_PRIVATE_KEY` - SSH private key
+- `VPS_APP_PATH` - Application path on VPS
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - JWT secret key
+- `NODE_ENV` - Environment (production)
+- `APP_PORT` - Application port (3000)
+- `ENABLE_SWAGGER` - Enable/disable Swagger (false in production)
+- `CORS_ORIGINS` - Allowed CORS origins
+
+Push to `main` or `master` branch to trigger automatic deployment.
+
+## �📦 Tech Stack
 
 - NestJS 10.x
 - TypeScript 5.x
@@ -119,9 +162,11 @@ npm run test:cov
 ## 🗂️ Database Schema
 
 ### Users
+
 - id, email, username, password_hash, role, nip, divisi, no_hp, cabang, is_active
 
 ### Laporan
+
 - id, user_id, jenis_laporan, kategori, instansi, deskripsi, total, foto_filename, latitude, longitude, timestamp_foto, status, remark
 
 ## 🔐 Authentication
