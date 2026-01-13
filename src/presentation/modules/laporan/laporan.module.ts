@@ -8,9 +8,10 @@ import { GetLaporanListUseCase } from '@application/use-cases/laporan/get-lapora
 import { LaporanRepository } from '@infrastructure/database/repositories/laporan.repository';
 import { LaporanOrmEntity } from '@infrastructure/database/entities/laporan.orm-entity';
 import { FileStorageService } from '@infrastructure/storage/file-storage.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LaporanOrmEntity])],
+  imports: [TypeOrmModule.forFeature([LaporanOrmEntity]), AuthModule],
   controllers: [LaporanController],
   providers: [
     CreateLaporanUseCase,
