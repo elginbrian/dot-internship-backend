@@ -57,9 +57,44 @@ export class Initial1705161200000 implements MigrationInterface {
     await queryRunner.query(`
       CREATE INDEX "IDX_laporan_created_at" ON "laporan" ("created_at")
     `);
+
+    // Password default: 'password123'
+    await queryRunner.query(`
+      INSERT INTO "users" (
+        "email", "username", "password_hash", "role", "nip", "divisi", "no_hp", "cabang", "is_active"
+      ) VALUES (
+        'admin@gmail.com', 
+        'Administrator Bank', 
+        '$2b$10$nByNHT.Bvdf8O9A9.tO7z.v/Q6P6hE1y6S7O7hE1y6S7O7hE1y6S7', 
+        'ADMIN', 
+        'DEV00001', 
+        'Unsecured Loan', 
+        '081234567890', 
+        'Malang Kawi', 
+        true
+      )
+    `);
+
+    // Password default: 'password123'
+    await queryRunner.query(`
+      INSERT INTO "users" (
+        "email", "username", "password_hash", "role", "nip", "divisi", "no_hp", "cabang", "is_active"
+      ) VALUES (
+        'supervisor@gmail.com', 
+        'Supervisor Bank', 
+        '$2b$10$nByNHT.Bvdf8O9A9.tO7z.v/Q6P6hE1y6S7O7hE1y6S7O7hE1y6S7', 
+        'SUPERVISOR', 
+        'DEV00002', 
+        'Unsecured Loan', 
+        '081234567891', 
+        'Malang Kawi', 
+        true
+      )
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DELETE FROM "users" WHERE "nip" IN ('DEV00001', 'DEV00002')`);
     await queryRunner.query(`DROP INDEX "IDX_laporan_created_at"`);
     await queryRunner.query(`DROP INDEX "IDX_laporan_status"`);
     await queryRunner.query(`DROP INDEX "IDX_laporan_user_id"`);

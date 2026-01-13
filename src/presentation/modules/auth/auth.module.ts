@@ -34,6 +34,7 @@ import { UserOrmEntity } from '@infrastructure/database/entities/user.orm-entity
     },
     UserRepository,
   ],
-  exports: [JwtStrategy, PassportModule, JwtModule],
+
+  exports: [JwtStrategy, PassportModule, JwtModule, 'IUserRepository', UserRepository],
 })
 export class AuthModule {}
