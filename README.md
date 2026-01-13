@@ -1,11 +1,11 @@
-# Sistem Management Laporan Bank
+# Bank Report Management System
 
-Backend API untuk sistem pelaporan kunjungan nasabah Bank menggunakan NestJS TypeScript dengan Clean Architecture.
+Backend API for bank customer visit reporting system built with NestJS TypeScript using Clean Architecture.
 
 ## 📋 Features
 
 - ✅ JWT Authentication (Email/Password)
-- ✅ CRUD Laporan (Visit Reports) with Photo Upload
+- ✅ CRUD Reports (Visit Reports) with Photo Upload
 - ✅ Role-Based Access Control (USER, ADMIN, SUPERVISOR)
 - ✅ Dashboard Statistics & Leaderboard
 - ✅ Admin User Management
@@ -17,13 +17,65 @@ Backend API untuk sistem pelaporan kunjungan nasabah Bank menggunakan NestJS Typ
 
 ## 🏗️ Architecture
 
+This project implements **Clean Architecture** (also known as Hexagonal Architecture or Onion Architecture) with 4 distinct layers:
+
 ```
 src/
-├── domain/              # Business Rules
+├── domain/              # Business Rules & Entities
 ├── application/         # Use Cases & DTOs
 ├── infrastructure/      # Database & External Services
 └── presentation/        # Controllers & API
 ```
+
+### Why Clean Architecture?
+
+**1. Separation of Concerns**
+
+- Each layer has a single, well-defined responsibility
+- Business logic is isolated from technical implementation details
+- Makes the codebase easier to understand and maintain
+
+**2. Independence from Frameworks**
+
+- Business rules don't depend on NestJS, TypeORM, or any external library
+- Framework is just a delivery mechanism, not the core of the application
+- Easy to migrate to different frameworks if needed
+
+**3. Testability**
+
+- Business logic can be tested without database, web server, or external dependencies
+- Use cases can be tested in isolation using mock repositories
+- Clear boundaries make unit testing straightforward
+
+**4. Maintainability & Scalability**
+
+- Changes in UI/API don't affect business logic
+- Database changes are isolated in infrastructure layer
+- New features can be added without breaking existing code
+
+**5. Team Collaboration**
+
+- Clear structure makes it easy for team members to know where to add new code
+- Reduces merge conflicts as different layers can be worked on independently
+- Enforces consistent coding patterns across the project
+
+**6. Flexibility**
+
+- Easy to swap database (PostgreSQL → MongoDB)
+- Easy to add new interfaces (REST API → GraphQL → gRPC)
+- Easy to change external services without touching business logic
+
+### Layer Dependencies
+
+```
+Presentation → Application → Domain
+Infrastructure → Application → Domain
+```
+
+- **Domain Layer**: Pure business logic, no external dependencies
+- **Application Layer**: Orchestrates domain objects, defines use cases
+- **Infrastructure Layer**: Implements technical details (database, file storage)
+- **Presentation Layer**: Handles HTTP requests/responses, authentication
 
 ## 🚀 Quick Start
 
@@ -69,15 +121,15 @@ npm run start:dev
 - `POST /api/v1/auth/login` - Login
 - `POST /api/v1/auth/refresh` - Refresh token
 
-### Laporan (7 endpoints)
+### Reports (7 endpoints)
 
-- `POST /api/v1/laporan` - Create laporan
-- `GET /api/v1/laporan` - Get list
-- `GET /api/v1/laporan/:id` - Get detail
-- `PATCH /api/v1/laporan/:id` - Update
-- `DELETE /api/v1/laporan/:id` - Delete
-- `POST /api/v1/laporan/:id/validate` - Validate (Admin)
-- `GET /api/v1/laporan/:id/photo` - Get photo
+- `POST /api/v1/laporan` - Create report
+- `GET /api/v1/laporan` - Get report list
+- `GET /api/v1/laporan/:id` - Get report detail
+- `PATCH /api/v1/laporan/:id` - Update report
+- `DELETE /api/v1/laporan/:id` - Delete report
+- `POST /api/v1/laporan/:id/validate` - Validate report (Admin only)
+- `GET /api/v1/laporan/:id/photo` - Get report photo
 
 ### Dashboard (2 endpoints)
 
@@ -95,7 +147,7 @@ npm run start:dev
 - `GET /api/v1/profile` - Get profile
 - `PATCH /api/v1/profile` - Update profile
 - `PATCH /api/v1/profile/password` - Change password
-- `GET /api/v1/profile/laporan` - Get user's laporan
+- `GET /api/v1/profile/laporan` - Get user's reports
 
 ### Health (2 endpoints)
 
@@ -163,11 +215,11 @@ Push to `main` or `master` branch to trigger automatic deployment.
 
 ### Users
 
-- id, email, username, password_hash, role, nip, divisi, no_hp, cabang, is_active
+- id, email, username, password_hash, role, nip, division, phone_number, branch, is_active
 
-### Laporan
+### Reports
 
-- id, user_id, jenis_laporan, kategori, instansi, deskripsi, total, foto_filename, latitude, longitude, timestamp_foto, status, remark
+- id, user_id, report_type, category, institution, description, total, photo_filename, latitude, longitude, photo_timestamp, status, remark
 
 ## 🔐 Authentication
 
@@ -187,4 +239,4 @@ MIT
 
 ## 👤 Developer
 
-Elgin Brian - Internship Challenge Project
+Elgin Brian Wahyu Bramadhika
