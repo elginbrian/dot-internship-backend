@@ -86,49 +86,49 @@ export class ValidateLaporanDto {
 }
 
 export class LaporanResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440001' })
   userId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Kunjungan Nasabah' })
   jenisLaporan: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'TNI' })
   kategori: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'PT. ABC Company' })
   instansi: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Kunjungan ke instansi untuk sosialisasi produk BRI' })
   deskripsi: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 150 })
   total: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'laporan_20240113_123456.jpg' })
   fotoFilename?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: -6.2088 })
   latitude?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 106.8456 })
   longitude?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '2024-01-13T12:34:56.000Z' })
   timestampFoto?: Date;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'pending', enum: ['pending', 'approved', 'rejected'] })
   status: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Laporan sudah disetujui' })
   remark?: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2024-01-13T07:00:00.000Z' })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2024-01-13T07:00:00.000Z' })
   updatedAt: Date;
 }
 

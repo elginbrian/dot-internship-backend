@@ -81,47 +81,47 @@ export class LoginDto {
 }
 
 export class UserResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'user@bri.co.id' })
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'John Doe' })
   username: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'USER', enum: ['USER', 'ADMIN'] })
   role: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '12345678' })
   nip: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'IT Department' })
   divisi: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '081234567890' })
   noHp: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Malang Kawi' })
   cabang: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: true })
   isActive: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2024-01-13T07:00:00.000Z' })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ example: '2024-01-13T07:00:00.000Z' })
   updatedAt: Date;
 }
 
 export class AuthResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
   accessToken: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
   refreshToken: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: UserResponseDto })
   user: UserResponseDto;
 }

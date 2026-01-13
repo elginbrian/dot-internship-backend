@@ -16,7 +16,14 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../decorators/roles.decorator';
@@ -50,8 +57,64 @@ export class LaporanController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create new laporan with photo upload' })
+  @ApiOperation({
+    summary: 'Create new laporan',
+    description:
+      'Create a new laporan report with optional photo upload. Photo will be compressed and saved automatically.',
+  })
   @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        jenisLaporan: {
+          type: 'string',
+          enum: ['Kunjungan Nasabah', 'Share Broadcast'],
+          example: 'Kunjungan Nasabah',
+        },
+        kategori: {
+          type: 'string',
+          enum: ['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'],
+          example: 'TNI',
+        },
+        instansi: { type: 'string', example: 'PT. ABC Company' },
+        deskripsi: {
+          type: 'string',
+          example: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
+        },
+        total: { type: 'number', example: 150 },
+        latitude: { type: 'number', example: -6.2088 },
+        longitude: { type: 'number', example: 106.8456 },
+        foto: { type: 'string', format: 'binary' },
+      },
+      required: ['jenisLaporan', 'kategori', 'instansi', 'deskripsi', 'total'],
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Laporan created successfully',
+    schema: {
+      example: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        userId: '550e8400-e29b-41d4-a716-446655440001',
+        jenisLaporan: 'Kunjungan Nasabah',
+        kategori: 'TNI',
+        instansi: 'PT. ABC Company',
+        deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
+        total: 150,
+        fotoFilename: 'laporan_20240113_123456.jpg',
+        latitude: -6.2088,
+        longitude: 106.8456,
+        timestampFoto: '2024-01-13T12:34:56.000Z',
+        status: 'pending',
+        remark: null,
+        createdAt: '2024-01-13T07:00:00.000Z',
+        updatedAt: '2024-01-13T07:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseInterceptors(FileInterceptor('foto'))
   async create(
     @CurrentUser('id') userId: string,
@@ -81,7 +144,38 @@ export class LaporanController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get laporan list with filters' })
+  @ApiOperation({
+    summary: 'Get laporan list',
+    description:
+      'Get paginated list of laporan with optional filters. Regular users see only their own laporan, admins see all from their cabang, supervisors see all.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of laporan retrieved successfully',
+    schema: {
+      example: {
+        laporan: [
+          {
+            id: '550e8400-e29b-41d4-a716-446655440000',
+            userId: '550e8400-e29b-41d4-a716-446655440001',
+            jenisLaporan: 'Kunjungan Nasabah',
+            kategori: 'TNI',
+            instansi: 'PT. ABC Company',
+            deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
+            total: 150,
+            fotoFilename: 'laporan_20240113_123456.jpg',
+            status: 'pending',
+            createdAt: '2024-01-13T07:00:00.000Z',
+            updatedAt: '2024-01-13T07:00:00.000Z',
+          },
+        ],
+        total: 25,
+        page: 1,
+        totalPages: 3,
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getAll(@Query() filters: LaporanFilterDto, @CurrentUser() user: any) {
     if (user.role === 'SUPERVISOR') {
       // Supervisor can see all
@@ -105,7 +199,40 @@ export class LaporanController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get laporan detail' })
+  @ApiOperation({
+    summary: 'Get laporan by ID',
+    description:
+      'Get detailed information of a specific laporan by ID. Users can only access their own laporan unless they are admin/supervisor.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Laporan retrieved successfully',
+    schema: {
+      example: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        userId: '550e8400-e29b-41d4-a716-446655440001',
+        jenisLaporan: 'Kunjungan Nasabah',
+        kategori: 'TNI',
+        instansi: 'PT. ABC Company',
+        deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
+        total: 150,
+        fotoFilename: 'laporan_20240113_123456.jpg',
+        fotoOriginalname: 'photo_office.jpg',
+        fotoMimetype: 'image/jpeg',
+        fotoSize: 2048576,
+        latitude: -6.2088,
+        longitude: 106.8456,
+        timestampFoto: '2024-01-13T07:00:00.000Z',
+        status: 'approved',
+        remark: 'Laporan lengkap dan valid',
+        createdAt: '2024-01-13T07:00:00.000Z',
+        updatedAt: '2024-01-13T08:30:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: "Forbidden - Cannot access other user's laporan" })
+  @ApiResponse({ status: 404, description: 'Laporan not found' })
   async getById(@Param('id') id: string) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan) {
@@ -115,7 +242,55 @@ export class LaporanController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update laporan' })
+  @ApiOperation({
+    summary: 'Update laporan',
+    description:
+      'Update existing laporan. Users can only update their own laporan. Admin and supervisor can update any laporan.',
+  })
+  @ApiBody({
+    description: 'Update laporan data',
+    schema: {
+      type: 'object',
+      properties: {
+        jenisLaporan: {
+          type: 'string',
+          enum: ['Kunjungan Nasabah', 'Kunjungan Non Nasabah'],
+          example: 'Kunjungan Nasabah',
+        },
+        kategori: {
+          type: 'string',
+          enum: ['TNI', 'POLRI', 'PNS', 'ASN', 'Pensiunan', 'Swasta', 'Prapurna'],
+          example: 'PNS',
+        },
+        instansi: { type: 'string', example: 'Dinas Pendidikan Kota Jakarta' },
+        deskripsi: { type: 'string', example: 'Follow up kunjungan sebelumnya' },
+        total: { type: 'number', example: 200 },
+        latitude: { type: 'number', example: -6.2088 },
+        longitude: { type: 'number', example: 106.8456 },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Laporan updated successfully',
+    schema: {
+      example: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        userId: '550e8400-e29b-41d4-a716-446655440001',
+        jenisLaporan: 'Kunjungan Nasabah',
+        kategori: 'PNS',
+        instansi: 'Dinas Pendidikan Kota Jakarta',
+        deskripsi: 'Follow up kunjungan sebelumnya',
+        total: 200,
+        status: 'pending',
+        updatedAt: '2024-01-13T14:05:30.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: "Forbidden - Cannot update other user's laporan" })
+  @ApiResponse({ status: 404, description: 'Laporan not found' })
   async update(@Param('id') id: string, @Body() dto: UpdateLaporanDto, @CurrentUser() user: any) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan) {
@@ -130,7 +305,24 @@ export class LaporanController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete laporan' })
+  @ApiOperation({
+    summary: 'Delete laporan',
+    description:
+      'Delete laporan by ID. Users can only delete their own laporan. Admin and supervisor can delete any laporan.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Laporan deleted successfully',
+    schema: {
+      example: {
+        message: 'Laporan deleted successfully',
+        id: '550e8400-e29b-41d4-a716-446655440000',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: "Forbidden - Cannot delete other user's laporan" })
+  @ApiResponse({ status: 404, description: 'Laporan not found' })
   async delete(@Param('id') id: string, @CurrentUser() user: any) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan) {
@@ -151,13 +343,58 @@ export class LaporanController {
 
   @Post(':id/validate')
   @Roles('ADMIN', 'SUPERVISOR')
-  @ApiOperation({ summary: 'Validate laporan (Admin/Supervisor only)' })
+  @ApiOperation({
+    summary: 'Validate laporan (Admin/Supervisor only)',
+    description:
+      'Approve or reject laporan submission. Only accessible by admin and supervisor roles. Sets status and optional remark.',
+  })
+  @ApiBody({
+    description: 'Validation decision with optional remark',
+    schema: {
+      type: 'object',
+      required: ['status'],
+      properties: {
+        status: { type: 'string', enum: ['approved', 'rejected'], example: 'approved' },
+        remark: { type: 'string', example: 'Data valid dan lengkap, disetujui' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Laporan validated successfully',
+    schema: {
+      example: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        status: 'approved',
+        remark: 'Data valid dan lengkap, disetujui',
+        updatedAt: '2024-01-13T15:20:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid status value' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Requires admin or supervisor role' })
+  @ApiResponse({ status: 404, description: 'Laporan not found' })
   async validate(@Param('id') id: string, @Body() dto: ValidateLaporanDto) {
     return await this.validateLaporanUseCase.execute(id, dto.status as any, dto.remark);
   }
 
   @Get(':id/photo')
-  @ApiOperation({ summary: 'Get laporan photo file' })
+  @ApiOperation({
+    summary: 'Get laporan photo file',
+    description:
+      'Download the photo file associated with a laporan. Returns the actual image file.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Photo file retrieved successfully',
+    content: {
+      'image/jpeg': {},
+      'image/png': {},
+      'image/jpg': {},
+    },
+  })
+  @ApiResponse({ status: 404, description: 'Photo not found' })
   async getPhoto(@Param('id') id: string, @Res() res: Response) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan || !laporan.fotoFilename) {
