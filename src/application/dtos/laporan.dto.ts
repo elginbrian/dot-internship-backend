@@ -143,14 +143,16 @@ export class LaporanFilterDto {
   @IsEnum(['pending', 'approved', 'rejected'])
   status?: string;
 
-  @ApiPropertyOptional({ enum: ['kunjungan', 'kegiatan'] })
+  @ApiPropertyOptional({ enum: ['Kunjungan Nasabah', 'Share Broadcast'] })
   @IsOptional()
-  @IsEnum(['kunjungan', 'kegiatan'])
+  @IsEnum(['Kunjungan Nasabah', 'Share Broadcast'])
   jenisLaporan?: string;
 
-  @ApiPropertyOptional({ enum: ['prapurna', 'purna', 'bri_unit', 'kantor_cabang', 'teras_bri'] })
+  @ApiPropertyOptional({
+    enum: ['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'],
+  })
   @IsOptional()
-  @IsEnum(['prapurna', 'purna', 'bri_unit', 'kantor_cabang', 'teras_bri'])
+  @IsEnum(['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'])
   kategori?: string;
 
   @ApiPropertyOptional()

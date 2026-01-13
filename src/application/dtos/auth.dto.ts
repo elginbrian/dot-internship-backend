@@ -23,7 +23,11 @@ export class RegisterDto {
   @IsNotEmpty()
   nip: string;
 
-  @ApiProperty({ example: 'Unsecured Loan', enum: ['Unsecured Loan'] })
+  @ApiProperty({
+    example: 'Unsecured Loan',
+    enum: ['Unsecured Loan'],
+    description: 'Division: Unsecured Loan (only available division)',
+  })
   @IsString()
   @IsNotEmpty()
   divisi: string;
@@ -84,19 +88,23 @@ export class UserResponseDto {
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   id: string;
 
-  @ApiProperty({ example: 'user@bri.co.id' })
+  @ApiProperty({ example: 'user@gmail.com' })
   email: string;
 
   @ApiProperty({ example: 'John Doe' })
   username: string;
 
-  @ApiProperty({ example: 'USER', enum: ['USER', 'ADMIN'] })
+  @ApiProperty({ example: 'USER', enum: ['USER', 'ADMIN', 'SUPERVISOR'] })
   role: string;
 
   @ApiProperty({ example: '12345678' })
   nip: string;
 
-  @ApiProperty({ example: 'IT Department' })
+  @ApiProperty({
+    example: 'Unsecured Loan',
+    enum: ['Unsecured Loan'],
+    description: 'Division: Unsecured Loan (only available division)',
+  })
   divisi: string;
 
   @ApiProperty({ example: '081234567890' })

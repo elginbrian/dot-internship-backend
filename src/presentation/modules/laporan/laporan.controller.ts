@@ -316,17 +316,17 @@ export class LaporanController {
       properties: {
         jenisLaporan: {
           type: 'string',
-          enum: ['Kunjungan Nasabah', 'Kunjungan Non Nasabah'],
+          enum: ['Kunjungan Nasabah', 'Share Broadcast'],
           example: 'Kunjungan Nasabah',
           description:
-            'Type of report: Kunjungan Nasabah (customer visit) or Kunjungan Non Nasabah (non-customer visit)',
+            'Type of report: Kunjungan Nasabah (customer visit) or Share Broadcast (broadcast sharing)',
         },
         kategori: {
           type: 'string',
-          enum: ['TNI', 'POLRI', 'PNS', 'ASN', 'Pensiunan', 'Swasta', 'Prapurna'],
-          example: 'PNS',
+          enum: ['TNI', 'ASN', 'POLRI', 'BUMN', 'Pensiunan', 'Prapurna', 'Lainnya'],
+          example: 'ASN',
           description:
-            'Category: TNI (military), POLRI (police), PNS (civil servant), ASN (state apparatus), Pensiunan (retiree), Swasta (private), Prapurna (pre-retirement)',
+            'Category: TNI (military), ASN (state apparatus), POLRI (police), BUMN (state-owned enterprise), Pensiunan (retiree), Prapurna (pre-retirement), Lainnya (others)',
         },
         instansi: { type: 'string', example: 'Dinas Pendidikan Kota Jakarta' },
         deskripsi: { type: 'string', example: 'Follow up kunjungan sebelumnya' },

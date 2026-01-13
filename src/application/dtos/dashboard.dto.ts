@@ -21,13 +21,17 @@ export class LeaderboardItemDto {
   @ApiProperty()
   username: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '12345678' })
   nip: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'Unsecured Loan',
+    enum: ['Unsecured Loan'],
+    description: 'Division: Unsecured Loan',
+  })
   divisi: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'Malang Kawi' })
   cabang: string;
 
   @ApiProperty()
