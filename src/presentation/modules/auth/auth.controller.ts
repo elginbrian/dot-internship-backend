@@ -1,5 +1,6 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUseCase } from '@application/use-cases/auth/register.use-case';
 import { LoginUseCase } from '@application/use-cases/auth/login.use-case';
@@ -16,6 +17,7 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @UseInterceptors(AnyFilesInterceptor())
   @ApiOperation({
     summary: 'Register new user',
     description:

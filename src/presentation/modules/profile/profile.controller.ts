@@ -1,4 +1,5 @@
-import { Controller, Get, Patch, Body, UseGuards, Inject } from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards, Inject, UseInterceptors } from '@nestjs/common';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
@@ -81,6 +82,7 @@ export class ProfileController {
   }
 
   @Patch()
+  @UseInterceptors(AnyFilesInterceptor())
   @ApiOperation({
     summary: 'Update profile',
     description:
