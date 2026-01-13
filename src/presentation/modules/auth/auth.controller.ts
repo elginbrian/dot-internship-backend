@@ -43,7 +43,17 @@ export class AuthController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid input or user already exists' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input or user already exists',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Email already exists',
+        error: 'Bad Request',
+      },
+    },
+  })
   async register(@Body() dto: RegisterDto): Promise<any> {
     const user = await this.registerUseCase.execute({
       ...dto,
@@ -93,7 +103,17 @@ export class AuthController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid credentials',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Invalid email or password',
+        error: 'Unauthorized',
+      },
+    },
+  })
   async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.loginUseCase.execute(dto.email, dto.password);
 

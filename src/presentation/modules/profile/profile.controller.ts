@@ -32,17 +32,37 @@ export class ProfileController {
         username: 'john_doe',
         role: 'USER',
         nip: '123456789',
-        namaLengkap: 'John Doe',
-        jabatan: 'Account Officer',
-        cabang: 'Jakarta',
-        noTelepon: '081234567890',
+        divisi: 'Account Officer Division',
+        noHp: '081234567890',
+        cabang: 'Malang Kawi',
+        isActive: true,
         createdAt: '2024-01-01T00:00:00.000Z',
         updatedAt: '2024-01-01T00:00:00.000Z',
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async getProfile(@CurrentUser('id') userId: string) {
     const user = await this.userRepository.findById(userId);
     if (!user) {
@@ -66,10 +86,9 @@ export class ProfileController {
         email: { type: 'string', example: 'newemail@example.com' },
         username: { type: 'string', example: 'new_username' },
         nip: { type: 'string', example: '987654321' },
-        namaLengkap: { type: 'string', example: 'John Smith' },
-        jabatan: { type: 'string', example: 'Senior Account Officer' },
+        divisi: { type: 'string', example: 'Senior Account Officer Division' },
+        noHp: { type: 'string', example: '081298765432' },
         cabang: { type: 'string', example: 'Bandung' },
-        noTelepon: { type: 'string', example: '081298765432' },
       },
     },
   })
@@ -83,17 +102,47 @@ export class ProfileController {
         username: 'new_username',
         role: 'USER',
         nip: '987654321',
-        namaLengkap: 'John Smith',
-        jabatan: 'Senior Account Officer',
+        divisi: 'Senior Account Officer Division',
+        noHp: '081298765432',
         cabang: 'Bandung',
-        noTelepon: '081298765432',
+        isActive: true,
         updatedAt: '2024-01-13T16:30:00.000Z',
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid input data' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['email must be a valid email address'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async updateProfile(@CurrentUser('id') userId: string, @Body() data: any) {
     const updated = await this.userRepository.update(userId, data);
     const { passwordHash, ...userWithoutPassword } = updated;
@@ -134,9 +183,39 @@ export class ProfileController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid password format' })
-  @ApiResponse({ status: 401, description: 'Current password is incorrect' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid password format',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Password must be at least 8 characters',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Current password is incorrect',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Current password is incorrect',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async changePassword(
     @CurrentUser('id') userId: string,
     @Body('currentPassword') currentPassword: string,
@@ -189,7 +268,17 @@ export class ProfileController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
   async getUserLaporan(@CurrentUser('id') userId: string) {
     return await this.laporanRepository.findByUserId(userId, 1, 100);
   }

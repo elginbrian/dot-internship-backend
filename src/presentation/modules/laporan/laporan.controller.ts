@@ -113,8 +113,28 @@ export class LaporanController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid input data' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['jenisLaporan must be one of: Kunjungan Nasabah, Share Broadcast'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('foto'))
   async create(
     @CurrentUser('id') userId: string,
@@ -175,7 +195,17 @@ export class LaporanController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
   async getAll(@Query() filters: LaporanFilterDto, @CurrentUser() user: any) {
     if (user.role === 'SUPERVISOR') {
       // Supervisor can see all
@@ -217,9 +247,6 @@ export class LaporanController {
         deskripsi: 'Kunjungan ke instansi untuk sosialisasi produk BRI',
         total: 150,
         fotoFilename: 'laporan_20240113_123456.jpg',
-        fotoOriginalname: 'photo_office.jpg',
-        fotoMimetype: 'image/jpeg',
-        fotoSize: 2048576,
         latitude: -6.2088,
         longitude: 106.8456,
         timestampFoto: '2024-01-13T07:00:00.000Z',
@@ -230,9 +257,39 @@ export class LaporanController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: "Forbidden - Cannot access other user's laporan" })
-  @ApiResponse({ status: 404, description: 'Laporan not found' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden - Cannot access other user's laporan",
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Laporan not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Laporan not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async getById(@Param('id') id: string) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan) {
@@ -287,10 +344,50 @@ export class LaporanController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid input data' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: "Forbidden - Cannot update other user's laporan" })
-  @ApiResponse({ status: 404, description: 'Laporan not found' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['total must be a positive number'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden - Cannot update other user's laporan",
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Laporan not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Laporan not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async update(@Param('id') id: string, @Body() dto: UpdateLaporanDto, @CurrentUser() user: any) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan) {
@@ -320,9 +417,39 @@ export class LaporanController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: "Forbidden - Cannot delete other user's laporan" })
-  @ApiResponse({ status: 404, description: 'Laporan not found' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden - Cannot delete other user's laporan",
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Laporan not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Laporan not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async delete(@Param('id') id: string, @CurrentUser() user: any) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan) {
@@ -371,10 +498,50 @@ export class LaporanController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid status value' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Requires admin or supervisor role' })
-  @ApiResponse({ status: 404, description: 'Laporan not found' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid status value',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['status must be one of: approved, rejected'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Requires admin or supervisor role',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Laporan not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Laporan not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async validate(@Param('id') id: string, @Body() dto: ValidateLaporanDto) {
     return await this.validateLaporanUseCase.execute(id, dto.status as any, dto.remark);
   }
@@ -394,7 +561,17 @@ export class LaporanController {
       'image/jpg': {},
     },
   })
-  @ApiResponse({ status: 404, description: 'Photo not found' })
+  @ApiResponse({
+    status: 404,
+    description: 'Photo not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Photo not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async getPhoto(@Param('id') id: string, @Res() res: Response) {
     const laporan = await this.laporanRepository.findById(id);
     if (!laporan || !laporan.fotoFilename) {

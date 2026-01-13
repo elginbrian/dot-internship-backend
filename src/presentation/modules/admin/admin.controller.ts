@@ -31,10 +31,10 @@ export class AdminController {
             username: 'john_doe',
             role: 'USER',
             nip: '123456789',
-            namaLengkap: 'John Doe',
-            jabatan: 'Account Officer',
-            cabang: 'Jakarta',
-            noTelepon: '081234567890',
+            divisi: 'Account Officer Division',
+            noHp: '081234567890',
+            cabang: 'Malang Kawi',
+            isActive: true,
             createdAt: '2024-01-01T00:00:00.000Z',
             updatedAt: '2024-01-01T00:00:00.000Z',
           },
@@ -45,8 +45,28 @@ export class AdminController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Requires admin role' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Requires admin role',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+      },
+    },
+  })
   async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
     return await this.manageUsersUseCase.getAll(page, limit);
   }
@@ -66,10 +86,10 @@ export class AdminController {
         username: { type: 'string', example: 'new_username' },
         role: { type: 'string', enum: ['USER', 'ADMIN', 'SUPERVISOR'], example: 'ADMIN' },
         nip: { type: 'string', example: '987654321' },
-        namaLengkap: { type: 'string', example: 'Jane Smith' },
-        jabatan: { type: 'string', example: 'Branch Manager' },
+        divisi: { type: 'string', example: 'Branch Manager Division' },
+        noHp: { type: 'string', example: '081298765432' },
         cabang: { type: 'string', example: 'Surabaya' },
-        noTelepon: { type: 'string', example: '081298765432' },
+        isActive: { type: 'boolean', example: true },
       },
     },
   })
@@ -83,18 +103,58 @@ export class AdminController {
         username: 'new_username',
         role: 'ADMIN',
         nip: '987654321',
-        namaLengkap: 'Jane Smith',
-        jabatan: 'Branch Manager',
+        divisi: 'Branch Manager Division',
+        noHp: '081298765432',
         cabang: 'Surabaya',
-        noTelepon: '081298765432',
+        isActive: true,
         updatedAt: '2024-01-13T16:00:00.000Z',
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid input data' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Requires admin role' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['email must be a valid email address'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Requires admin role',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async updateUser(@Param('id') id: string, @Body() data: any) {
     return await this.manageUsersUseCase.updateUser(id, data);
   }
@@ -115,9 +175,39 @@ export class AdminController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Requires admin role' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Requires admin role',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Forbidden',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async deleteUser(@Param('id') id: string) {
     await this.manageUsersUseCase.deleteUser(id);
     return { message: 'User deleted successfully' };

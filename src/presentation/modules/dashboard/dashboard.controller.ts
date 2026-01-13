@@ -45,7 +45,17 @@ export class DashboardController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
   async getStats() {
     return await this.getStatisticsUseCase.execute();
   }
@@ -82,7 +92,17 @@ export class DashboardController {
       ],
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
   async getLeaderboard(@Query('limit') limit: number = 10) {
     return await this.getLeaderboardUseCase.execute(limit);
   }
