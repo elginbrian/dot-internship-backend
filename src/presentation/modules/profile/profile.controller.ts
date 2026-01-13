@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../decorators/current-user.decorator';
@@ -12,8 +12,8 @@ import * as bcrypt from 'bcrypt';
 @Controller('profile')
 export class ProfileController {
   constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly laporanRepository: ILaporanRepository,
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+    @Inject('ILaporanRepository') private readonly laporanRepository: ILaporanRepository,
   ) {}
 
   @Get()
