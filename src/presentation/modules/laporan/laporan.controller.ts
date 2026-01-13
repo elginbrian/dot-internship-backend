@@ -41,6 +41,7 @@ import {
 import { JenisLaporan, KategoriKunjungan, LaporanStatus } from '@domain/entities/laporan.entity';
 import { FileStorageService } from '@infrastructure/storage/file-storage.service';
 import { ILaporanRepository } from '@domain/repositories/laporan.repository.interface';
+import { IUserRepository } from '@domain/repositories/user.repository.interface';
 import { CurrentUserPayload } from '../auth/guards/jwt.types';
 
 @ApiTags('Laporan')
@@ -55,6 +56,7 @@ export class LaporanController {
     private readonly getLaporanListUseCase: GetLaporanListUseCase,
     private readonly fileStorageService: FileStorageService,
     @Inject('ILaporanRepository') private readonly laporanRepository: ILaporanRepository,
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
   ) {}
 
   @Post()
@@ -212,14 +214,16 @@ export class LaporanController {
     },
   })
   async getAll(@Query() filters: LaporanFilterDto, @CurrentUser() user: CurrentUserPayload) {
+    let cabangFilter: string | undefined;
+
     if (user.role === 'SUPERVISOR') {
-      // Supervisor can see all
     } else if (user.role === 'ADMIN') {
-      // Admin can only see from their cabang
-      // TODO: Need to fetch user's cabang from user entity
-      filters.userId = filters.userId;
+      const adminUser = await this.userRepository.findById(user.id);
+      if (!adminUser) {
+        throw new Error('Admin user not found');
+      }
+      cabangFilter = adminUser.cabang;
     } else {
-      // Regular user can only see their own
       filters.userId = user.id;
     }
 
@@ -227,6 +231,7 @@ export class LaporanController {
       {
         ...filters,
         status: filters.status as LaporanStatus | undefined,
+        cabang: cabangFilter,
       },
       filters.page || 1,
       filters.limit || 10,

@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, FindOptionsWhere } from 'typeorm';
+import { ILaporanRepository } from '@domain/repositories/laporan.repository.interface';
+import { LaporanFilters, LaporanStatistics, LeaderboardEntry } from '@domain/types/laporan.types';
 import {
-  ILaporanRepository,
-  LaporanFilters,
-} from '@domain/repositories/laporan.repository.interface';
-import { Laporan } from '@domain/entities/laporan.entity';
+  Laporan,
+  JenisLaporan,
+  KategoriKunjungan,
+  LaporanStatus,
+} from '@domain/entities/laporan.entity';
 import { LaporanOrmEntity } from '../entities/laporan.orm-entity';
 
 @Injectable()
@@ -31,23 +34,45 @@ export class LaporanRepository implements ILaporanRepository {
     page: number,
     limit: number,
   ): Promise<{ laporan: Laporan[]; total: number }> {
-    const where: FindOptionsWhere<LaporanOrmEntity> = {};
+    const queryBuilder = this.repository.createQueryBuilder('laporan');
 
-    if (filters.userId) where.userId = filters.userId;
-    if (filters.status) where.status = filters.status as any;
-    if (filters.jenisLaporan) where.jenisLaporan = filters.jenisLaporan as any;
-    if (filters.kategori) where.kategori = filters.kategori as any;
-
-    if (filters.startDate && filters.endDate) {
-      where.createdAt = Between(filters.startDate, filters.endDate) as any;
+    if (filters.userId) {
+      queryBuilder.andWhere('laporan.userId = :userId', { userId: filters.userId });
     }
 
-    const [entities, total] = await this.repository.findAndCount({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { createdAt: 'DESC' },
-    });
+    if (filters.cabang) {
+      queryBuilder
+        .innerJoin('user', 'user', 'user.id = laporan.userId')
+        .andWhere('user.cabang = :cabang', { cabang: filters.cabang });
+    }
+
+    if (filters.status) {
+      queryBuilder.andWhere('laporan.status = :status', { status: filters.status });
+    }
+
+    if (filters.jenisLaporan) {
+      queryBuilder.andWhere('laporan.jenisLaporan = :jenisLaporan', {
+        jenisLaporan: filters.jenisLaporan,
+      });
+    }
+
+    if (filters.kategori) {
+      queryBuilder.andWhere('laporan.kategori = :kategori', { kategori: filters.kategori });
+    }
+
+    if (filters.startDate && filters.endDate) {
+      queryBuilder.andWhere('laporan.createdAt BETWEEN :startDate AND :endDate', {
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+      });
+    }
+
+    queryBuilder
+      .orderBy('laporan.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [entities, total] = await queryBuilder.getManyAndCount();
 
     return {
       laporan: entities.map((e) => this.toDomain(e)),
@@ -74,7 +99,7 @@ export class LaporanRepository implements ILaporanRepository {
   }
 
   async update(id: string, data: Partial<Laporan>): Promise<Laporan> {
-    await this.repository.update(id, data as any);
+    await this.repository.update(id, data as unknown as LaporanOrmEntity);
     const updated = await this.repository.findOne({ where: { id } });
     if (!updated) {
       throw new Error('Laporan not found');
@@ -86,11 +111,31 @@ export class LaporanRepository implements ILaporanRepository {
     await this.repository.delete(id);
   }
 
-  async getStatistics(): Promise<any> {
-    const total = await this.repository.count();
-    const pending = await this.repository.count({ where: { status: 'pending' as any } });
-    const approved = await this.repository.count({ where: { status: 'approved' as any } });
-    const rejected = await this.repository.count({ where: { status: 'rejected' as any } });
+  async getStatistics(cabang?: string): Promise<LaporanStatistics> {
+    const queryBuilder = this.repository.createQueryBuilder('laporan');
+
+    if (cabang) {
+      queryBuilder
+        .innerJoin('user', 'user', 'user.id = laporan.userId')
+        .where('user.cabang = :cabang', { cabang });
+    }
+
+    const total = await queryBuilder.getCount();
+
+    const pendingQuery = queryBuilder
+      .clone()
+      .andWhere('laporan.status = :status', { status: 'pending' });
+    const pending = await pendingQuery.getCount();
+
+    const approvedQuery = queryBuilder
+      .clone()
+      .andWhere('laporan.status = :status', { status: 'approved' });
+    const approved = await approvedQuery.getCount();
+
+    const rejectedQuery = queryBuilder
+      .clone()
+      .andWhere('laporan.status = :status', { status: 'rejected' });
+    const rejected = await rejectedQuery.getCount();
 
     return {
       total,
@@ -100,8 +145,8 @@ export class LaporanRepository implements ILaporanRepository {
     };
   }
 
-  async getLeaderboard(limit: number): Promise<any[]> {
-    const result = await this.repository
+  async getLeaderboard(limit: number, cabang?: string): Promise<LeaderboardEntry[]> {
+    const queryBuilder = this.repository
       .createQueryBuilder('laporan')
       .select('laporan.userId', 'userId')
       .addSelect('COUNT(*)', 'count')
@@ -110,7 +155,13 @@ export class LaporanRepository implements ILaporanRepository {
       .addSelect('user.divisi', 'divisi')
       .addSelect('user.cabang', 'cabang')
       .leftJoin('laporan.user', 'user')
-      .where('laporan.status = :status', { status: 'approved' })
+      .where('laporan.status = :status', { status: 'approved' });
+
+    if (cabang) {
+      queryBuilder.andWhere('user.cabang = :cabang', { cabang });
+    }
+
+    const result = await queryBuilder
       .groupBy('laporan.userId')
       .addGroupBy('user.username')
       .addGroupBy('user.nip')
@@ -127,8 +178,8 @@ export class LaporanRepository implements ILaporanRepository {
     return {
       id: entity.id,
       userId: entity.userId,
-      jenisLaporan: entity.jenisLaporan as any,
-      kategori: entity.kategori as any,
+      jenisLaporan: entity.jenisLaporan as JenisLaporan,
+      kategori: entity.kategori as KategoriKunjungan,
       instansi: entity.instansi,
       deskripsi: entity.deskripsi,
       total: entity.total,
@@ -136,7 +187,7 @@ export class LaporanRepository implements ILaporanRepository {
       latitude: entity.latitude ? Number(entity.latitude) : undefined,
       longitude: entity.longitude ? Number(entity.longitude) : undefined,
       timestampFoto: entity.timestampFoto,
-      status: entity.status as any,
+      status: entity.status as LaporanStatus,
       remark: entity.remark,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,

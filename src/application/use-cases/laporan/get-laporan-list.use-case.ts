@@ -1,8 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import {
-  ILaporanRepository,
-  LaporanFilters,
-} from '@domain/repositories/laporan.repository.interface';
+import { ILaporanRepository } from '@domain/repositories/laporan.repository.interface';
+import { LaporanFilters } from '@domain/types/laporan.types';
 import { Laporan } from '@domain/entities/laporan.entity';
 
 @Injectable()

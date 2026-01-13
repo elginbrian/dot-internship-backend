@@ -138,6 +138,11 @@ export class LaporanFilterDto {
   @IsString()
   userId?: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  cabang?: string;
+
   @ApiPropertyOptional({ enum: ['pending', 'approved', 'rejected'] })
   @IsOptional()
   @IsEnum(['pending', 'approved', 'rejected'])

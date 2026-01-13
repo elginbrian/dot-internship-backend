@@ -1,13 +1,5 @@
-import { Laporan, LaporanStatus } from '../entities/laporan.entity';
-
-export interface LaporanFilters {
-  userId?: string;
-  status?: LaporanStatus;
-  jenisLaporan?: string;
-  kategori?: string;
-  startDate?: Date;
-  endDate?: Date;
-}
+import { Laporan } from '../entities/laporan.entity';
+import { LaporanFilters, LaporanStatistics, LeaderboardEntry } from '../types/laporan.types';
 
 export interface ILaporanRepository {
   create(laporan: Laporan): Promise<Laporan>;
@@ -17,9 +9,13 @@ export interface ILaporanRepository {
     page: number,
     limit: number,
   ): Promise<{ laporan: Laporan[]; total: number }>;
-  findByUserId(userId: string, page: number, limit: number): Promise<{ laporan: Laporan[]; total: number }>;
+  findByUserId(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ laporan: Laporan[]; total: number }>;
   update(id: string, data: Partial<Laporan>): Promise<Laporan>;
   delete(id: string): Promise<void>;
-  getStatistics(): Promise<any>;
-  getLeaderboard(limit: number): Promise<any[]>;
+  getStatistics(cabang?: string): Promise<LaporanStatistics>;
+  getLeaderboard(limit: number, cabang?: string): Promise<LeaderboardEntry[]>;
 }

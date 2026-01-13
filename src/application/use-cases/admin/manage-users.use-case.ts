@@ -6,8 +6,25 @@ import { User } from '@domain/entities/user.entity';
 export class ManageUsersUseCase {
   constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
 
-  async getAll(page: number = 1, limit: number = 10): Promise<{ users: User[]; total: number }> {
-    return await this.userRepository.findAll(page, limit);
+  async getAll(
+    page: number = 1,
+    limit: number = 10,
+    currentUserId: string,
+    currentUserRole: string,
+  ): Promise<{ users: User[]; total: number }> {
+    if (currentUserRole === 'SUPERVISOR') {
+      return await this.userRepository.findAll(page, limit);
+    }
+
+    if (currentUserRole === 'ADMIN') {
+      const currentUser = await this.userRepository.findById(currentUserId);
+      if (!currentUser) {
+        throw new Error('Current user not found');
+      }
+      return await this.userRepository.findByCabang(currentUser.cabang, page, limit);
+    }
+
+    return { users: [], total: 0 };
   }
 
   async updateUser(id: string, data: Partial<User>): Promise<User> {

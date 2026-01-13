@@ -1,8 +1,10 @@
 import { Controller, Get, UseGuards, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../decorators/current-user.decorator';
 import { GetStatisticsUseCase } from '@application/use-cases/dashboard/get-statistics.use-case';
 import { GetLeaderboardUseCase } from '@application/use-cases/dashboard/get-leaderboard.use-case';
+import { CurrentUserPayload } from '../auth/guards/jwt.types';
 
 @ApiTags('Dashboard')
 @ApiBearerAuth()
@@ -56,8 +58,8 @@ export class DashboardController {
       },
     },
   })
-  async getStats() {
-    return await this.getStatisticsUseCase.execute();
+  async getStats(@CurrentUser() user: CurrentUserPayload) {
+    return await this.getStatisticsUseCase.execute(user.id, user.role);
   }
 
   @Get('leaderboard')
@@ -103,7 +105,10 @@ export class DashboardController {
       },
     },
   })
-  async getLeaderboard(@Query('limit') limit: number = 10) {
-    return await this.getLeaderboardUseCase.execute(limit);
+  async getLeaderboard(
+    @Query('limit') limit: number = 10,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return await this.getLeaderboardUseCase.execute(limit, user.id, user.role);
   }
 }

@@ -46,8 +46,26 @@ export class UserRepository implements IUserRepository {
     };
   }
 
+  async findByCabang(
+    cabang: Cabang,
+    page: number,
+    limit: number,
+  ): Promise<{ users: User[]; total: number }> {
+    const [entities, total] = await this.repository.findAndCount({
+      where: { cabang },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      users: entities.map((e) => this.toDomain(e)),
+      total,
+    };
+  }
+
   async update(id: string, data: Partial<User>): Promise<User> {
-    await this.repository.update(id, data as any);
+    await this.repository.update(id, data as unknown as UserOrmEntity);
     const updated = await this.repository.findOne({ where: { id } });
     if (!updated) {
       throw new Error('User not found');

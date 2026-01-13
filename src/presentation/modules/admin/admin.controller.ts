@@ -3,8 +3,10 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiBody } from '@nes
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../decorators/roles.decorator';
+import { CurrentUser } from '../../decorators/current-user.decorator';
 import { ManageUsersUseCase } from '@application/use-cases/admin/manage-users.use-case';
 import { UpdateUserDto } from '@application/dtos/admin.dto';
+import { CurrentUserPayload } from '../auth/guards/jwt.types';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -68,8 +70,12 @@ export class AdminController {
       },
     },
   })
-  async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return await this.manageUsersUseCase.getAll(page, limit);
+  async getUsers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return await this.manageUsersUseCase.getAll(page, limit, user.id, user.role);
   }
 
   @Patch('users/:id')
