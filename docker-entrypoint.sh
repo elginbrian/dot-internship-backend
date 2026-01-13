@@ -11,7 +11,7 @@ done
 echo "PostgreSQL is up!"
 
 echo "Running migrations..."
-if npm run migration:run; then
+if npm run migration:run:prod; then
   echo "Migrations completed successfully"
 else
   echo "Migration failed or already applied, continuing..."
