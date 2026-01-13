@@ -80,17 +80,6 @@ export class LoginDto {
   password: string;
 }
 
-export class AuthResponseDto {
-  @ApiProperty()
-  accessToken: string;
-
-  @ApiProperty()
-  refreshToken: string;
-
-  @ApiProperty()
-  user: UserResponseDto;
-}
-
 export class UserResponseDto {
   @ApiProperty()
   id: string;
@@ -124,4 +113,15 @@ export class UserResponseDto {
 
   @ApiProperty()
   updatedAt: Date;
+}
+
+export class AuthResponseDto {
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty()
+  refreshToken: string;
+
+  @ApiProperty()
+  user: UserResponseDto;
 }
